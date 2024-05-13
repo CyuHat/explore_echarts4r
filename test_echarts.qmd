@@ -1,0 +1,120 @@
+---
+title: "Exemple echarts4r"
+format: html
+editor: visual
+---
+
+```{r}
+#| message: false
+#| warning: false
+library(echarts4r)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+```
+
+**Source**: https://echarts4r.john-coene.com/index.html
+
+# Bar charts
+
+## Example 1
+
+```{r}
+starwars %>% 
+  count(gender) %>% 
+  e_charts(gender) %>% 
+  e_bar(n) %>% 
+  e_tooltip("item") %>% 
+  e_title("Iris dataset", "test bar charts")
+```
+
+## Example 2
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  summarise(sepal.length = mean(Sepal.Length),
+            petal.length = mean(Petal.Length)) %>% 
+  e_charts(Species) %>% 
+  e_bar(sepal.length) %>% 
+  e_bar(petal.length) %>% 
+  e_tooltip("item") %>% 
+  e_title("Iris dataset", "test bar charts")
+```
+
+# Scatter
+
+```{r}
+iris |> 
+  e_charts(Sepal.Length) |> 
+  e_effect_scatter(Petal.Length, Petal.Width) %>% 
+  e_visual_map(Sepal.Width) %>% 
+  e_tooltip("item") %>% 
+  e_title("Iris dataset")
+```
+
+# Lines
+
+## Example 1
+
+```{r}
+economics %>% 
+  e_charts(date) %>% 
+  e_line(pce) %>% 
+  e_datazoom() %>% 
+  e_tooltip("item")
+```
+
+## Example 2
+
+```{r}
+economics %>% 
+  mutate(year = year(date)) %>% 
+  filter(between(year, 2005, 2008)) %>% 
+  group_by(year) %>% 
+  e_charts(uempmed, timeline = TRUE) %>% 
+  e_line(psavert) %>% 
+  e_x_axis(uempmed)
+```
+
+# Calendar
+
+```{r}
+dates <- seq.Date(as.Date("2017-01-01"), as.Date("2018-12-31"), by = "day")
+values <- rnorm(length(dates), 20, 6)
+
+year <- data.frame(date = dates, values = values)
+
+year %>% 
+  mutate(year = year(date)) %>%  # get year from date
+  group_by(year) %>% 
+  e_charts(date) %>% 
+  e_calendar(range = "2017") %>% 
+  e_calendar(range = "2018", top = "260") %>% 
+  e_heatmap(values, coord_system = "calendar") %>% 
+  e_visual_map(max = 30) %>% 
+  e_title("Calendar", "Heatmap") %>% 
+  e_tooltip("item")
+```
+
+# Pie
+
+```{r}
+mtcars %>% 
+  head() %>% 
+  tibble::rownames_to_column("model") %>% 
+  e_charts(model) %>% 
+  e_pie(hp, roseType = "radius") %>% 
+  e_tooltip("item")
+```
+
+# Sankey
+
+```{r}
+starwars %>% 
+  count(sex, gender) %>% 
+  e_charts() %>% 
+  e_sankey(sex, gender, n) %>% 
+  e_tooltip("item") %>% 
+  e_title("starwars dataset")
+```
